@@ -7,7 +7,8 @@ from Cython.Build import cythonize
 from torch.utils.cpp_extension import BuildExtension, CppExtension, CUDAExtension
 import numpy
 
-
+import numpy as np
+    
 # Get the numpy include directory.
 numpy_include_dir = numpy.get_include()
 
@@ -20,7 +21,7 @@ pykdtree = Extension(
         'im2mesh/utils/libkdtree/pykdtree/_kdtree_core.c'
     ],
     language='c',
-    extra_compile_args=['-std=c99', '-O3', '-fopenmp'],
+    extra_compile_args=['-std=c99', '-O3', '-fopenmp', '-I%s' % numpy_include_dir],
     extra_link_args=['-lgomp'],
 )
 
@@ -43,6 +44,7 @@ triangle_hash_module = Extension(
     sources=[
         'im2mesh/utils/libmesh/triangle_hash.pyx'
     ],
+    extra_compile_args=['-I%s' % numpy_include_dir],
     libraries=['m']  # Unix-like specific
 )
 
@@ -59,7 +61,8 @@ simplify_mesh_module = Extension(
     'im2mesh.utils.libsimplify.simplify_mesh',
     sources=[
         'im2mesh/utils/libsimplify/simplify_mesh.pyx'
-    ]
+    ],
+    extra_compile_args=['-I%s' % numpy_include_dir],
 )
 
 # voxelization (efficient mesh voxelization)
@@ -100,7 +103,7 @@ ext_modules = [
     simplify_mesh_module,
     voxelize_module,
     dmc_pred2mesh_module,
-    dmc_cuda_module,
+    # dmc_cuda_module,
 ]
 
 setup(
