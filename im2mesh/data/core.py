@@ -194,7 +194,7 @@ class Shapes3dDatasetH5(data.Dataset):
             category = os.path.basename(self.h5path[d_i])[:len('_%s.h5' % split)]
             for i in range(self.dataset[d_i]['points']['points'].shape[0]):
                 self.models.append(
-                    {'model': self.dataset['model_uuid'][i].decode('utf-8'),
+                    {'model': self.dataset[d_i]['model_uuid'][i].decode('utf-8'),
                      'category': category})
 
         for i, d in enumerate(self.dataset):
