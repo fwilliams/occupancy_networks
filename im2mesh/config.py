@@ -131,7 +131,7 @@ def get_dataset(mode, cfg, return_idx=False, return_category=False):
     split = splits[mode]
 
     # Create dataset
-    if dataset_type == 'Shapes3D':
+    if dataset_type in ('Shapes3D', 'Shapes3DH5'):
         # Dataset fields
         # Method specific fields (usually correspond to output)
         fields = method_dict[method].config.get_data_fields(mode, cfg)
@@ -146,11 +146,18 @@ def get_dataset(mode, cfg, return_idx=False, return_category=False):
         if return_category:
             fields['category'] = data.CategoryField()
 
-        dataset = data.Shapes3dDataset(
-            dataset_folder, fields,
-            split=split,
-            categories=categories,
-        )
+        if dataset_type == 'Shapes3DH5':
+            dataset = data.Shapes3dDatasetH5(
+                dataset_folder, fields,
+                split=split,
+                categories=categories,
+            )
+        else:
+            dataset = data.Shapes3dDataset(
+                dataset_folder, fields,
+                split=split,
+                categories=categories,
+            )
     elif dataset_type == 'kitti':
         dataset = data.KittiDataset(
             dataset_folder, img_size=cfg['data']['img_size'],

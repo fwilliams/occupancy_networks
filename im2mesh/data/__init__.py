@@ -1,6 +1,6 @@
 
 from im2mesh.data.core import (
-    Shapes3dDataset, collate_remove_none, worker_init_fn
+    Shapes3dDataset, Shapes3dDatasetH5, collate_remove_none, worker_init_fn
 )
 from im2mesh.data.fields import (
     IndexField, CategoryField, ImagesField, PointsField,
@@ -19,6 +19,7 @@ from im2mesh.data.real import (
 __all__ = [
     # Core
     Shapes3dDataset,
+    Shapes3dDatasetH5,
     collate_remove_none,
     worker_init_fn,
     # Fields

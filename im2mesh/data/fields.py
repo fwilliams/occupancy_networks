@@ -20,6 +20,16 @@ class IndexField(Field):
         '''
         return idx
 
+    def load_h5(self, h5path, local_idx, global_idx):
+        ''' Loads the index field.
+
+        Args:
+            model_path (str): path to model
+            idx (int): ID of data point
+            category (int): index of category
+        '''
+        return global_idx
+
     def check_complete(self, files):
         ''' Check if field is complete.
         
@@ -136,6 +146,32 @@ class PointsField(Field):
         self.with_transforms = with_transforms
         self.unpackbits = unpackbits
 
+    def load_h5(self, h5f, local_idx, global_idx):
+        points = h5f['points']['points'][local_idx]
+        if points.dtype == np.float16:
+            points = points.astype(np.float32)
+            points += 1e-4 * np.random.randn(*points.shape)
+        else:
+            points = points.astype(np.float32)
+
+        occupancies = h5f['points']['occupancies'][local_idx]
+        if self.unpackbits:
+            occupancies = np.unpackbits(occupancies)
+
+        data = {
+            None: points,
+            'occ': occupancies,
+        }
+
+        if self.with_transforms:
+            data['loc'] = h5f['points']['loc'][local_idx].astype(np.float32)
+            data['scale'] = h5f['points']['scale'][local_idx].astype(np.float32)
+
+        if self.transform is not None:
+            data = self.transform(data)
+
+        return data
+
     def load(self, model_path, idx, category):
         ''' Loads the data point.
 
@@ -233,6 +269,33 @@ class PointCloudField(Field):
         self.file_name = file_name
         self.transform = transform
         self.with_transforms = with_transforms
+
+    def load_h5(self, h5path, local_idx, global_idx):
+        ''' Loads the data point.
+
+        Args:
+            model_path (str): path to model
+            idx (int): ID of data point
+            category (int): index of category
+        '''
+
+        points = h5path['pointclouds']['pointclouds'][local_idx].astype(np.float32)
+        normals = h5path['pointclouds']['normals'][local_idx].astype(np.float32)
+
+        data = {
+            None: points,
+            'normals': normals,
+        }
+
+        if self.with_transforms:
+            data['loc'] = h5path['pointclouds']['loc'][local_idx].astype(np.float32)
+            data['scale'] = h5path['pointclouds']['scale'][local_idx].astype(np.float32)
+
+        if self.transform is not None:
+            data = self.transform(data)
+
+        return data
+
 
     def load(self, model_path, idx, category):
         ''' Loads the data point.
