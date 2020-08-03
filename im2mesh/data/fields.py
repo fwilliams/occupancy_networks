@@ -224,6 +224,14 @@ class VoxelsField(Field):
         self.file_name = file_name
         self.transform = transform
 
+    def load_h5(self, h5f, local_idx, global_idx):
+        voxels = h5f['voxels'][local_idx].astype(np.float32)
+
+        if self.transform is not None:
+            voxels = self.transform(voxels)
+
+        return voxels
+
     def load(self, model_path, idx, category):
         ''' Loads the data point.
 
