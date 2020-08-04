@@ -221,13 +221,13 @@ class Shapes3dDatasetH5(data.Dataset):
         for field_name, field in self.fields.items():
             try:
                 field_data = field.load_h5(h5f=self.dataset[d_index], local_idx=idx, global_idx=global_idx)
-            except Exception:
+            except Exception as e:
+                print(e)
                 if self.no_except:
                     logger.warn('Error occured when loading field %s' % field_name)
                     return None
                 else:
                     raise
-
             if isinstance(field_data, dict):
                 for k, v in field_data.items():
                     if k is None:

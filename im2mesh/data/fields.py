@@ -20,7 +20,7 @@ class IndexField(Field):
         '''
         return idx
 
-    def load_h5(self, h5path, local_idx, global_idx):
+    def load_h5(self, h5f, local_idx, global_idx):
         ''' Loads the index field.
 
         Args:
@@ -157,7 +157,7 @@ class PointsField(Field):
         occupancies = h5f['points']['occupancies'][local_idx]
         if self.unpackbits:
             occupancies = np.unpackbits(occupancies)
-
+        occupancies = occupancies.astype(np.float32)
         data = {
             None: points,
             'occ': occupancies,
@@ -278,7 +278,7 @@ class PointCloudField(Field):
         self.transform = transform
         self.with_transforms = with_transforms
 
-    def load_h5(self, h5path, local_idx, global_idx):
+    def load_h5(self, h5f, local_idx, global_idx):
         ''' Loads the data point.
 
         Args:
@@ -286,9 +286,8 @@ class PointCloudField(Field):
             idx (int): ID of data point
             category (int): index of category
         '''
-
-        points = h5path['pointclouds']['pointclouds'][local_idx].astype(np.float32)
-        normals = h5path['pointclouds']['normals'][local_idx].astype(np.float32)
+        points = h5f['pointclouds']['pointclouds'][local_idx].astype(np.float32)
+        normals = h5f['pointclouds']['normals'][local_idx].astype(np.float32)
 
         data = {
             None: points,
@@ -296,8 +295,8 @@ class PointCloudField(Field):
         }
 
         if self.with_transforms:
-            data['loc'] = h5path['pointclouds']['loc'][local_idx].astype(np.float32)
-            data['scale'] = h5path['pointclouds']['scale'][local_idx].astype(np.float32)
+            data['loc'] = h5f['pointclouds']['loc'][local_idx].astype(np.float32)
+            data['scale'] = h5f['pointclouds']['scale'][local_idx].astype(np.float32)
 
         if self.transform is not None:
             data = self.transform(data)
